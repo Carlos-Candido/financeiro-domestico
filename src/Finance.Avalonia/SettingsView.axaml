@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.SettingsView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="17">
+            <StackPanel Spacing="4" Margin="0,0,0,8">
+                <TextBlock Text="Configurações" Classes="heading" />
+                <TextBlock Text="Gerencie pessoas e opções de organização financeira." Foreground="{DynamicResource MutedBrush}" />
+            </StackPanel>
+            <Border Classes="card" Padding="22">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                    <StackPanel Spacing="5" VerticalAlignment="Center">
+                        <TextBlock Text="Pessoas" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Cadastre quem pode ser associado às receitas e despesas." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Classes="primary" Content="＋   Adicionar pessoa" Click="OnAddPerson" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+            <Border Classes="card" Padding="22">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                    <StackPanel Spacing="5" VerticalAlignment="Center">
+                        <TextBlock Text="Salários da família" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Cadastre o salário padrão de cada pessoa e acompanhe o recebimento mês a mês." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Classes="primary" Content="Abrir salários da família" Click="OnShowFamilySalaries" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+            <Border Classes="card" Padding="22">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                    <StackPanel Spacing="5" VerticalAlignment="Center">
+                        <TextBlock Text="Compras parceladas" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Distribua uma compra entre vários meses e acompanhe cada parcela no histórico." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="＋   Nova compra parcelada" Click="OnAddInstallment" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+            <Border Classes="card" Padding="20">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Armazenamento local" FontSize="18" FontWeight="SemiBold" />
+                    <TextBlock Text="Seus dados financeiros permanecem neste dispositivo, em um banco SQLite local." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

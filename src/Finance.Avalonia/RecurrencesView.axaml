@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.RecurrencesView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Name="RecurrencesHeading" FontSize="27" FontWeight="SemiBold" Text="Recorrências" />
+                    <TextBlock Text="Organize contas fixas e valores variáveis da família." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="AddRecurrenceButton" Content="＋   Nova recorrência" Classes="primary" Click="OnAddRecurrence" />
+                    <Button x:Name="GenerateButton" Content="Gerar este mês" Click="OnGenerate" />
+                </StackPanel>
+            </Grid>
+            <Border Classes="card" Padding="15,12">
+                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
+                           Text="Recorrências fixas geram lançamentos previstos; variáveis ficam pendentes. A geração é idempotente: executar novamente não cria duplicatas." />
+            </Border>
+            <StackPanel x:Name="RecurrenceList" Spacing="9" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

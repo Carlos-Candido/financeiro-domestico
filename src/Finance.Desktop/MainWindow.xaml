@@ -1,0 +1,195 @@
+<Window x:Class="Finance.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Finance" Width="1240" Height="860" MinWidth="980" MinHeight="700"
+        WindowStartupLocation="CenterScreen" Background="{StaticResource Canvas}" FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+  <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="76" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="220" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+
+    <Border Grid.Row="0" Grid.ColumnSpan="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+      <Grid Margin="24,0">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="220" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Border Width="38" Height="38" CornerRadius="11" Background="{StaticResource Accent}">
+            <TextBlock Text="F" Foreground="White" FontSize="23" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Finance" FontSize="21" FontWeight="SemiBold" />
+            <TextBlock Text="CONTROLE FAMILIAR" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Muted}" />
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="PreviousMonthButton" Style="{StaticResource IconButton}" Content="‹" AutomationProperties.Name="Mês anterior" Click="PreviousMonth_Click" />
+          <TextBlock x:Name="MonthHeading" MinWidth="190" Margin="14,0" FontSize="18" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center" />
+          <Button x:Name="NextMonthButton" Style="{StaticResource IconButton}" Content="›" AutomationProperties.Name="Próximo mês" Click="NextMonth_Click" Margin="0" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="14,22">
+        <StackPanel DockPanel.Dock="Top">
+          <TextBlock Text="FINANCEIRO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="12,0,0,10" />
+          <Button x:Name="HomeNavButton" Style="{StaticResource NavActiveButton}" Content="⌂   Início" Click="Dashboard_Click" />
+          <Button x:Name="EntriesNavButton" Style="{StaticResource NavButton}" Content="▤   Lançamentos" Click="History_Click" />
+          <Button x:Name="PlanningNavButton" Style="{StaticResource NavButton}" Content="▦   Planejamento" Click="Planning_Click" />
+          <Button x:Name="SettingsNavButton" Style="{StaticResource NavButton}" Content="⚙   Configurações" Click="Settings_Click" Margin="0" />
+        </StackPanel>
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Canvas}" CornerRadius="10" Padding="13" Margin="0,22,0,0">
+          <StackPanel>
+            <TextBlock Text="Seus dados ficam" FontWeight="SemiBold" FontSize="13" />
+            <TextBlock Text="salvos neste dispositivo." Foreground="{StaticResource Muted}" FontSize="13" TextWrapping="Wrap" Margin="0,3,0,0" />
+          </StackPanel>
+        </Border>
+      </DockPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <Grid Margin="34,26,34,38" MaxWidth="1120" HorizontalAlignment="Center">
+        <Grid x:Name="DashboardView">
+          <StackPanel>
+            <TextBlock Text="Visão geral" FontSize="27" FontWeight="SemiBold" Margin="0,0,0,18" />
+            <Border Background="{StaticResource Hero}" CornerRadius="16" Padding="28,24" Margin="0,0,0,16">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                  <TextBlock Text="SALDO DISPONÍVEL" FontSize="12" FontWeight="SemiBold" Foreground="#C5D7D1" />
+                  <TextBlock x:Name="BalanceText" FontSize="42" FontWeight="SemiBold" Foreground="White" Margin="0,5,0,0" />
+                  <TextBlock Text="Somente valores confirmados" FontSize="14" Foreground="#D8E3DF" Margin="0,3,0,0" />
+                </StackPanel>
+                <Border Grid.Column="1" Width="58" Height="58" CornerRadius="29" Background="#315A51" VerticalAlignment="Center" Margin="24,0,0,0">
+                  <TextBlock Text="R$" FontSize="20" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+            </Border>
+            <Grid Margin="0,0,0,14">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="14" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+              <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="19,16">
+                <StackPanel><TextBlock Text="Receitas confirmadas" Foreground="{StaticResource Muted}" FontSize="14" /><TextBlock x:Name="IncomeTotalText" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource Positive}" Margin="0,5,0,0" /></StackPanel>
+              </Border>
+              <Border Grid.Column="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="19,16">
+                <StackPanel><TextBlock Text="Despesas confirmadas" Foreground="{StaticResource Muted}" FontSize="14" /><TextBlock x:Name="ExpenseTotalText" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource Negative}" Margin="0,5,0,0" /></StackPanel>
+              </Border>
+            </Grid>
+            <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="16,12" Margin="0,0,0,20">
+              <StackPanel><TextBlock x:Name="PendingText" FontSize="14" FontWeight="Medium" /><TextBlock x:Name="ForecastText" Margin="0,5,0,0" Foreground="{StaticResource Muted}" FontSize="14" TextWrapping="Wrap" /></StackPanel>
+            </Border>
+            <Grid Margin="0,0,0,22">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+              <Button Style="{StaticResource PrimaryButton}" Content="＋   Adicionar receita" Click="AddIncome_Click" Margin="0,0,8,0" />
+              <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Content="−   Registrar despesa" Click="AddExpense_Click" Margin="4,0" />
+              <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="▦   Compra parcelada" Click="AddInstallment_Click" Margin="8,0,0,0" />
+            </Grid>
+            <Grid Margin="0,0,0,10">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <StackPanel><TextBlock Text="Lançamentos recentes" FontSize="21" FontWeight="SemiBold" /><TextBlock Text="Movimentações do mês" FontSize="14" Foreground="{StaticResource Muted}" Margin="0,3,0,0" /></StackPanel>
+              <Button Grid.Column="1" Style="{StaticResource QuietButton}" Content="Ver lançamentos  →" Click="History_Click" Margin="0" VerticalAlignment="Center" />
+            </Grid>
+            <Grid>
+              <ListView x:Name="RecentGrid" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                  <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Focusable" Value="False" /><Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="{x:Type ListViewItem}"><ContentPresenter /></ControlTemplate></Setter.Value></Setter>
+                  </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="12">
+                      <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="145" /></Grid.ColumnDefinitions>
+                        <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource Canvas}" VerticalAlignment="Center"><TextBlock Text="{Binding FlowGlyph}" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0"><TextBlock Text="{Binding DisplayDescription}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding DetailText}" FontSize="13" Foreground="{StaticResource Muted}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" /></StackPanel>
+                        <Border Grid.Column="2" Background="{StaticResource Canvas}" CornerRadius="9" Padding="9,5" VerticalAlignment="Center" Margin="4,0,12,0"><TextBlock Text="{Binding Status}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource Muted}" /></Border>
+                        <TextBlock Grid.Column="3" Text="{Binding AmountText}" FontSize="16" FontWeight="SemiBold" TextAlignment="Right" VerticalAlignment="Center" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+              </ListView>
+              <Border x:Name="RecentEmpty" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="28" MinHeight="160" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="Nenhum lançamento neste mês" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" /><TextBlock Text="Use uma das ações acima para começar." FontSize="14" Foreground="{StaticResource Muted}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel>
+              </Border>
+            </Grid>
+          </StackPanel>
+        </Grid>
+
+        <Grid x:Name="HistoryView" Visibility="Collapsed">
+          <StackPanel>
+            <Grid Margin="0,0,0,16">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <StackPanel><TextBlock Text="Lançamentos" FontSize="27" FontWeight="SemiBold" /><TextBlock x:Name="HistoryMonthHeading" FontSize="15" Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="ConfirmSelectedButton" Style="{StaticResource SecondaryButton}" Content="Confirmar previsto" Click="ConfirmSelected_Click" IsEnabled="False" Margin="0,0,8,0" />
+                <Button x:Name="EditSelectedButton" Style="{StaticResource SecondaryButton}" Content="Editar" Click="EditSelected_Click" IsEnabled="False" Margin="0,0,8,0" />
+                <Button x:Name="DeleteSelectedButton" Style="{StaticResource QuietButton}" Content="Excluir" Click="DeleteSelected_Click" IsEnabled="False" Margin="0" />
+              </StackPanel>
+            </Grid>
+            <Grid Margin="0,0,0,10">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <TextBlock x:Name="HistoryFilterText" Text="Todos os lançamentos do mês" Foreground="{StaticResource Muted}" VerticalAlignment="Center" />
+              <Button x:Name="ClearHistoryFilterButton" Grid.Column="1" Style="{StaticResource QuietButton}" Content="Limpar filtro" Click="ClearHistoryFilter_Click" Visibility="Collapsed" Margin="0" />
+            </Grid>
+            <Border Background="{StaticResource Canvas}" CornerRadius="9" Padding="12,10" Margin="0,0,0,12"><TextBlock Text="Previstos podem ser confirmados; pendentes precisam de um valor informado. Editar afeta somente o lançamento escolhido. Lançamentos recorrentes não podem ser excluídos isoladamente: encerre o padrão para os próximos meses." Foreground="{StaticResource Muted}" FontSize="14" TextWrapping="Wrap" /></Border>
+            <DataGrid x:Name="HistoryGrid" MinHeight="440" SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="HistoryGrid_SelectionChanged" />
+            <Border x:Name="HistoryEmpty" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="28" MinHeight="130" Visibility="Collapsed"><StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="Nenhum lançamento para este mês" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" /><TextBlock Text="Os lançamentos aparecerão aqui." Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel></Border>
+          </StackPanel>
+        </Grid>
+
+        <Grid x:Name="PlanningView" Visibility="Collapsed">
+          <StackPanel>
+            <TextBlock Text="Planejamento" FontSize="27" FontWeight="SemiBold" Margin="0,0,0,15" />
+            <TabControl x:Name="PlanningTabs">
+              <TabItem Header="Salários">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel Margin="0,16,0,8">
+                    <Grid Margin="0,0,0,14"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Salários da família" FontSize="20" FontWeight="SemiBold" /><TextBlock x:Name="FamilySalaryMonthHeading" FontSize="14" Foreground="{StaticResource Muted}" Margin="0,3,0,0" /></StackPanel><Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="＋   Cadastrar salário" Click="AddFamilySalary_Click" VerticalAlignment="Center" /></Grid>
+                    <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="17,14"><StackPanel><TextBlock Text="Total mensal previsto" FontSize="14" Foreground="{StaticResource Muted}" /><TextBlock x:Name="FamilySalaryExpectedText" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource Accent}" Margin="0,4,0,0" /></StackPanel></Border><Border Grid.Column="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="17,14"><StackPanel><TextBlock Text="Já recebido" FontSize="14" Foreground="{StaticResource Muted}" /><TextBlock x:Name="FamilySalaryReceivedText" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource Positive}" Margin="0,4,0,0" /></StackPanel></Border></Grid>
+                    <Border Background="{StaticResource Canvas}" CornerRadius="9" Padding="12,10" Margin="0,0,0,14"><TextBlock Text="Somente salários confirmados entram no saldo. Ajustar um mês não altera o padrão; o padrão vale para meses ainda não gerados." Foreground="{StaticResource Muted}" TextWrapping="Wrap" /></Border>
+                    <StackPanel x:Name="FamilySalaryList" />
+                  </StackPanel>
+                </ScrollViewer>
+              </TabItem>
+              <TabItem Header="Despesas mensais">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel Margin="0,16,0,8">
+                    <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Despesas recorrentes" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="Contas fixas e variáveis, com histórico preservado." FontSize="14" Foreground="{StaticResource Muted}" Margin="0,3,0,0" /></StackPanel><Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="＋   Nova recorrência" Click="AddRecurrence_Click" Margin="10,0,0,0" /></Grid>
+                    <TextBlock Text="Outras receitas recorrentes também ficam nesta lista; salários aparecem na seção Salários." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel Margin="0,0,0,10"><Button Style="{StaticResource SecondaryButton}" Content="Editar padrão" Click="EditRecurrence_Click" IsEnabled="False" x:Name="EditRecurrenceButton" Margin="0,0,8,0" /><Button Style="{StaticResource QuietButton}" Content="Encerrar recorrência" Click="EndRecurrence_Click" IsEnabled="False" x:Name="EndRecurrenceButton" Margin="0" /><Button Style="{StaticResource QuietButton}" Content="Ver lançamentos deste mês" Click="OpenRecurrenceEntries_Click" IsEnabled="False" x:Name="OpenRecurrenceEntriesButton" Margin="8,0,0,0" /></WrapPanel>
+                    <DataGrid x:Name="RecurrenceGrid" MinHeight="360" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="RecurrenceGrid_SelectionChanged" />
+                    <Border x:Name="RecurrenceEmpty" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="22" Visibility="Collapsed"><StackPanel><TextBlock Text="Nenhuma recorrência cadastrada" FontWeight="SemiBold" FontSize="16" /><TextBlock Text="Cadastre uma despesa mensal ou outra receita recorrente." Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel></Border>
+                  </StackPanel>
+                </ScrollViewer>
+              </TabItem>
+              <TabItem Header="Parcelamentos">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel Margin="0,16,0,8">
+                    <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Compras parceladas" FontSize="20" FontWeight="SemiBold" /><TextBlock x:Name="InstallmentReferenceText" FontSize="14" Foreground="{StaticResource Muted}" Margin="0,3,0,0" /></StackPanel><Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="＋   Nova compra parcelada" Click="AddInstallment_Click" Margin="10,0,0,0" /></Grid>
+                    <TextBlock Text="Parcelas futuras são as que têm vencimento após o mês selecionado. O aplicativo não registra se uma parcela foi paga." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <DataGrid x:Name="InstallmentPlanGrid" MinHeight="230" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="InstallmentPlanGrid_SelectionChanged" />
+                    <Border x:Name="InstallmentPlanEmpty" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="22" Visibility="Collapsed"><StackPanel><TextBlock Text="Nenhuma compra parcelada" FontWeight="SemiBold" FontSize="16" /><TextBlock Text="Cadastre uma compra para acompanhar as parcelas neste espaço." Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel></Border>
+                    <TextBlock x:Name="InstallmentDetailHeading" Text="Selecione uma compra para ver as parcelas" FontSize="17" FontWeight="SemiBold" Margin="0,18,0,8" />
+                    <DataGrid x:Name="InstallmentDetailGrid" MinHeight="210" IsReadOnly="True" />
+                  </StackPanel>
+                </ScrollViewer>
+              </TabItem>
+            </TabControl>
+          </StackPanel>
+        </Grid>
+
+        <Grid x:Name="SettingsView" Visibility="Collapsed">
+          <StackPanel>
+            <TextBlock Text="Configurações" FontSize="27" FontWeight="SemiBold" />
+            <TextBlock Text="Pessoas associadas aos lançamentos e armazenamento local." FontSize="15" Foreground="{StaticResource Muted}" Margin="0,5,0,22" />
+            <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Pessoas" FontSize="18" FontWeight="SemiBold" /><TextBlock Text="Cadastre quem pode ser associado a receitas e despesas." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,4,16,0" /></StackPanel><Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Content="＋   Adicionar pessoa" Click="AddPerson_Click" Margin="0" VerticalAlignment="Center" /></Grid>
+            </Border>
+            <Border Background="{StaticResource Canvas}" CornerRadius="10" Padding="16"><StackPanel><TextBlock Text="Armazenamento local" FontSize="16" FontWeight="SemiBold" /><TextBlock Text="Seus dados financeiros permanecem neste dispositivo, em um banco SQLite local." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" /></StackPanel></Border>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </ScrollViewer>
+  </Grid>
+</Window>

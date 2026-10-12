@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.MonthView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20">
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="Visão geral" Classes="heading" />
+                    <TextBlock Text="Acompanhe as movimentações da família" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="PreviousButton" Content="‹" AutomationProperties.Name="Mês anterior" Click="OnPreviousMonth" Width="44" Padding="0" FontSize="24" />
+                    <TextBlock x:Name="MonthHeading" MinWidth="180" TextAlignment="Center" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button x:Name="NextButton" Content="›" AutomationProperties.Name="Próximo mês" Click="OnNextMonth" Width="44" Padding="0" FontSize="24" />
+                </StackPanel>
+            </Grid>
+
+            <Border Background="{DynamicResource HeroBrush}" CornerRadius="16" Padding="30,25">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel VerticalAlignment="Center" Spacing="3">
+                        <TextBlock Text="SALDO DISPONÍVEL" FontSize="12" FontWeight="SemiBold" Foreground="#C5D7D1" />
+                        <TextBlock x:Name="BalanceText" FontSize="42" FontWeight="SemiBold" Foreground="White" />
+                        <TextBlock Text="Considera somente lançamentos confirmados" FontSize="14" Foreground="#D8E3DF" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Width="58" Height="58" CornerRadius="29" Background="#315A51" VerticalAlignment="Center" Margin="24,0,0,0">
+                        <TextBlock Text="R$" FontSize="20" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="summaryCard">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Receitas confirmadas" Foreground="{DynamicResource MutedBrush}" FontSize="14" />
+                        <TextBlock x:Name="IncomeTotalText" FontSize="25" FontWeight="SemiBold" Foreground="{DynamicResource PositiveBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Classes="summaryCard">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Despesas confirmadas" Foreground="{DynamicResource MutedBrush}" FontSize="14" />
+                        <TextBlock x:Name="ExpenseTotalText" FontSize="25" FontWeight="SemiBold" Foreground="{DynamicResource NegativeBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="card" Padding="17,14">
+                <StackPanel Spacing="5">
+                    <TextBlock x:Name="PendingText" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock x:Name="ForecastText" Foreground="{DynamicResource MutedBrush}" FontSize="14" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="11">
+                <TextBlock Text="O que você deseja fazer?" Classes="sectionTitle" />
+                <WrapPanel>
+                    <Button x:Name="AddIncomeButton" Content="＋   Adicionar dinheiro" Classes="primary" Click="OnAddIncome" Margin="0,0,12,0" />
+                    <Button x:Name="AddExpenseButton" Content="−   Registrar gasto" Click="OnAddExpense" />
+                </WrapPanel>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="Lançamentos recentes" Classes="sectionTitle" />
+                    <TextBlock Text="Movimentações deste mês" Foreground="{DynamicResource MutedBrush}" FontSize="14" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="quiet" Content="Ver histórico  →" Click="OnOpenHistory" VerticalAlignment="Center" />
+            </Grid>
+            <StackPanel x:Name="MonthList" Spacing="9" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

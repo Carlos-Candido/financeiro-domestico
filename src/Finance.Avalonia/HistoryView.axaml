@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.HistoryView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Name="HistoryHeading" Classes="heading" />
+                    <TextBlock Text="Consulte e atualize os lançamentos do mês selecionado." Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="PreviousButton" Content="‹" AutomationProperties.Name="Mês anterior" Click="OnPreviousMonth" Width="44" Padding="0" FontSize="24" />
+                    <Button x:Name="NextButton" Content="›" AutomationProperties.Name="Próximo mês" Click="OnNextMonth" Width="44" Padding="0" FontSize="24" />
+                </StackPanel>
+            </Grid>
+
+            <WrapPanel>
+                <Button x:Name="ConfirmButton" Content="Confirmar previsto" Classes="primary" Click="OnConfirm" Margin="0,0,10,8" />
+                <Button x:Name="EditButton" Content="Editar selecionado" Click="OnEdit" Margin="0,0,10,8" />
+                <Button x:Name="DeleteButton" Content="Excluir selecionado" Classes="danger" Click="OnDelete" Margin="0,0,10,8" />
+            </WrapPanel>
+
+            <Border Classes="card" Padding="14,11">
+                <TextBlock x:Name="HistoryHint" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
+                           Text="Selecione um lançamento para confirmar, editar ou excluir. Para confirmar um valor pendente, informe o valor pela opção Editar." />
+            </Border>
+            <StackPanel x:Name="HistoryList" Spacing="9" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

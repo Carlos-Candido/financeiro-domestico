@@ -1,0 +1,122 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.App"
+             RequestedThemeVariant="Light">
+    <Application.Resources>
+        <SolidColorBrush x:Key="CanvasBrush" Color="#F4F6F4" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="InkBrush" Color="#202D31" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#647176" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#236B5C" />
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#1B584C" />
+        <SolidColorBrush x:Key="LineBrush" Color="#E2E8E4" />
+        <SolidColorBrush x:Key="HeroBrush" Color="#173C36" />
+        <SolidColorBrush x:Key="PositiveBrush" Color="#23734D" />
+        <SolidColorBrush x:Key="NegativeBrush" Color="#A5423E" />
+        <SolidColorBrush x:Key="WarningBrush" Color="#8A6417" />
+    </Application.Resources>
+    <Application.Styles>
+        <FluentTheme />
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource CanvasBrush}" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#F0F4F1" />
+            <Setter Property="BorderBrush" Value="#B8C9C1" />
+        </Style>
+        <Style Selector="Button:focus /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style Selector="Button:disabled">
+            <Setter Property="Opacity" Value="0.48" />
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.nav">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="MinHeight" Value="46" />
+        </Style>
+        <Style Selector="Button.nav:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CanvasBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+        </Style>
+        <Style Selector="Button.quiet">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Padding" Value="12,8" />
+        </Style>
+        <Style Selector="Button.danger">
+            <Setter Property="BorderBrush" Value="#DDB9B6" />
+            <Setter Property="Foreground" Value="#8E2F2C" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="Padding" Value="11,9" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="Padding" Value="8,7" />
+        </Style>
+        <Style Selector="DatePicker">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="MinHeight" Value="44" />
+        </Style>
+        <Style Selector="TextBlock.heading">
+            <Setter Property="FontSize" Value="27" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+        <Style Selector="Border.cardSelected">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="15" />
+        </Style>
+        <Style Selector="Border.summaryCard">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="20,17" />
+        </Style>
+    </Application.Styles>
+</Application>

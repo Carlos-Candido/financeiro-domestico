@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Finance.Avalonia.FamilySalariesView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="18">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Salários da família" Classes="heading" />
+                    <TextBlock Text="Acompanhe o valor previsto e o que já foi recebido." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="PreviousButton" Content="‹" AutomationProperties.Name="Mês anterior" Click="OnPreviousMonth" Width="44" Padding="0" FontSize="24" />
+                    <TextBlock x:Name="MonthHeading" MinWidth="180" TextAlignment="Center" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button x:Name="NextButton" Content="›" AutomationProperties.Name="Próximo mês" Click="OnNextMonth" Width="44" Padding="0" FontSize="24" />
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="summaryCard">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Total mensal previsto" FontSize="14" Foreground="{DynamicResource MutedBrush}" />
+                        <TextBlock x:Name="ExpectedTotalText" FontSize="25" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Classes="summaryCard">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Já recebido" FontSize="14" Foreground="{DynamicResource MutedBrush}" />
+                        <TextBlock x:Name="ReceivedTotalText" FontSize="25" FontWeight="SemiBold" Foreground="{DynamicResource PositiveBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="card" Padding="15,12">
+                <TextBlock Text="Salários previstos não entram no saldo disponível até serem marcados como recebidos. Editar um mês não altera o padrão dos próximos." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,3,0,0">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="Salários cadastrados" Classes="sectionTitle" />
+                    <TextBlock Text="Cada pessoa tem seu próprio valor e dia de recebimento." FontSize="14" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="primary" Content="＋   Cadastrar salário" Click="OnAddSalary" VerticalAlignment="Center" />
+            </Grid>
+            <StackPanel x:Name="SalaryList" Spacing="10" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
