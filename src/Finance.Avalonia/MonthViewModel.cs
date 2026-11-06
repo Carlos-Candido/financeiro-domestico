@@ -84,14 +84,14 @@ internal sealed class MonthViewModel
                 .Where(x => x.Date >= first && x.Date <= last).ToListAsync();
 
             var rows = incomes.Select(x => new EntryRow(x.Id, true, x.PersonId, x.Date, x.Description, x.Description,
-                x.Category?.Name ?? "", x.Person?.Name ?? "", x.Amount, StatusOf(x.IsConfirmed, x.Amount))).ToList();
+                x.Category?.Name ?? "", x.Person?.Name ?? "", x.Amount, StatusOf(x.IsConfirmed, x.Amount), x.RecurrenceId)).ToList();
             foreach (var x in expenses)
             {
                 var display = x.Description;
                 if (x.InstallmentNumber is { } number && x.InstallmentPlanId is { } planId)
                     display = $"{display} ({number}/{x.InstallmentPlan?.InstallmentCount ?? await CountInstallmentsAsync(planId)})";
                 rows.Add(new EntryRow(x.Id, false, x.PersonId, x.Date, x.Description, display,
-                    x.Category?.Name ?? "", x.Person?.Name ?? "", x.Amount, StatusOf(x.IsConfirmed, x.Amount)));
+                    x.Category?.Name ?? "", x.Person?.Name ?? "", x.Amount, StatusOf(x.IsConfirmed, x.Amount), x.RecurrenceId));
             }
             _entries = rows.OrderByDescending(x => x.Date).ThenBy(x => x.DisplayDescription).ToList();
 
@@ -143,9 +143,12 @@ internal sealed class MonthViewModel
         host.Children.Clear();
         if (rows.Count == 0)
         {
+            var isHistory = _history is { } history && ReferenceEquals(host, history.HistoryList);
             host.Children.Add(BuildEmptyState(
-                "Tudo tranquilo por aqui",
-                "Adicione uma receita ou despesa para começar."));
+                isHistory ? "Nenhum lançamento neste mês" : "Tudo tranquilo por aqui",
+                isHistory
+                    ? "Não há lançamentos registrados para o mês selecionado."
+                    : "Adicione uma receita ou despesa para começar."));
             return;
         }
         foreach (var row in rows)
@@ -156,14 +159,14 @@ internal sealed class MonthViewModel
     {
         var mark = new Border
         {
-            Width = 46,
-            Height = 46,
-            CornerRadius = new CornerRadius(23),
+            Width = 40,
+            Height = 40,
+            CornerRadius = new CornerRadius(20),
             Background = new SolidColorBrush(Color.Parse("#EAF1ED")),
             Child = new TextBlock
             {
-                Text = "＋",
-                FontSize = 24,
+                Text = "▤",
+                FontSize = 20,
                 Foreground = new SolidColorBrush(Color.Parse("#236B5C")),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -171,7 +174,7 @@ internal sealed class MonthViewModel
         };
         var body = new StackPanel
         {
-            Spacing = 7,
+            Spacing = 5,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -182,6 +185,8 @@ internal sealed class MonthViewModel
             FontSize = 18,
             FontWeight = FontWeight.SemiBold,
             HorizontalAlignment = HorizontalAlignment.Center,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment.Center,
         });
         body.Children.Add(new TextBlock
         {
@@ -195,8 +200,9 @@ internal sealed class MonthViewModel
         return new Border
         {
             Classes = { "card" },
-            Padding = new Thickness(28),
-            MinHeight = 160,
+            Padding = new Thickness(20),
+            MinHeight = 128,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             Child = body,
         };
     }
@@ -206,12 +212,6 @@ internal sealed class MonthViewModel
 
     private Border BuildEntryCard(EntryRow row, bool selected)
     {
-        var statusBrush = row.Status switch
-        {
-            "Confirmado" => new SolidColorBrush(Color.Parse("#23734D")),
-            "Previsto" => new SolidColorBrush(Color.Parse("#8A6417")),
-            _ => new SolidColorBrush(Color.Parse("#A5423E")),
-        };
         var amountBrush = row.IsIncome
             ? new SolidColorBrush(Color.Parse("#23734D"))
             : new SolidColorBrush(Color.Parse("#A5423E"));
@@ -258,19 +258,17 @@ internal sealed class MonthViewModel
             FontWeight = FontWeight.SemiBold,
             Foreground = row.Amount is null ? new SolidColorBrush(Color.Parse("#647176")) : amountBrush,
             HorizontalAlignment = HorizontalAlignment.Right,
+            TextWrapping = TextWrapping.Wrap,
         };
         var status = new Border
         {
-            Background = new SolidColorBrush(Color.Parse("#F4F6F4")),
-            CornerRadius = new CornerRadius(9),
-            Padding = new Thickness(9, 4),
+            Classes = { "statusPill", row.Status == "Confirmado" ? "positive" : row.Status == "Previsto" || row.Status == "Pendente" ? "warning" : "neutral" },
             HorizontalAlignment = HorizontalAlignment.Right,
             Child = new TextBlock
             {
                 Text = row.Status,
                 FontSize = 12,
                 FontWeight = FontWeight.SemiBold,
-                Foreground = statusBrush,
             },
         };
         var right = new StackPanel
@@ -296,17 +294,16 @@ internal sealed class MonthViewModel
         {
             Content = card,
             Padding = new Thickness(0),
-            Background = Brushes.Transparent,
-            BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(0),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
             Tag = row,
+            Classes = { "entryButton" },
         };
         selectable.Click += (_, _) =>
         {
             if (selectable.Tag is EntryRow clicked) SelectEntry(clicked);
         };
-        return new Border { Child = selectable };
+        return new Border { Child = selectable, HorizontalAlignment = HorizontalAlignment.Stretch };
     }
 
 
@@ -314,6 +311,9 @@ internal sealed class MonthViewModel
     {
         if (host is null) return;
         host.Children.Clear();
+        var mutedBrush = host.TryFindResource("MutedBrush", out var muted) && muted is IBrush brush
+            ? brush
+            : new SolidColorBrush(Color.Parse("#647176"));
         if (rows.Count == 0)
         {
             host.Children.Add(BuildEmptyState(
@@ -334,13 +334,13 @@ internal sealed class MonthViewModel
             {
                 Text = $"{row.Kind} · {row.ValueText} · {row.DueDayText} · {row.Category} · {row.Person} · {row.PeriodText}",
                 FontSize = 14,
-                Foreground = Brushes.Gray,
+                Foreground = mutedBrush,
                 TextWrapping = TextWrapping.Wrap,
             };
             var body = new StackPanel { Spacing = 2 };
             body.Children.Add(title);
             body.Children.Add(detail);
-            host.Children.Add(new Border { Classes = { "card" }, Child = body });
+            host.Children.Add(new Border { Classes = { "card" }, Child = body, HorizontalAlignment = HorizontalAlignment.Stretch });
         }
     }
 
@@ -361,7 +361,9 @@ internal sealed class MonthViewModel
             var statusText = salary.IsReceived
                 ? "Recebido"
                 : salary.DueDate is null ? "Fora do período" : "Previsto";
-            var statusColor = salary.IsReceived ? "#23734D" : "#8A6417";
+            var statusKind = salary.IsReceived
+                ? "positive"
+                : salary.DueDate is null ? "neutral" : "warning";
             var person = new TextBlock
             {
                 Text = salary.PersonName,
@@ -383,19 +385,17 @@ internal sealed class MonthViewModel
                 FontWeight = FontWeight.SemiBold,
                 Foreground = new SolidColorBrush(Color.Parse(salary.IsReceived ? "#23734D" : "#202D31")),
                 HorizontalAlignment = HorizontalAlignment.Right,
+                TextWrapping = TextWrapping.Wrap,
             };
             var status = new Border
             {
-                Background = new SolidColorBrush(Color.Parse("#F4F6F4")),
-                CornerRadius = new CornerRadius(9),
-                Padding = new Thickness(9, 4),
+                Classes = { "statusPill", statusKind },
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Child = new TextBlock
                 {
                     Text = statusText,
                     FontSize = 12,
                     FontWeight = FontWeight.SemiBold,
-                    Foreground = new SolidColorBrush(Color.Parse(statusColor)),
                 },
             };
             var summary = new StackPanel
@@ -409,7 +409,7 @@ internal sealed class MonthViewModel
             var editMonth = new Button
             {
                 Content = "Editar este mês",
-                MinHeight = 38,
+                MinHeight = 44,
                 Padding = new Thickness(11, 6),
                 IsEnabled = salary.IncomeId is not null,
             };
@@ -418,7 +418,7 @@ internal sealed class MonthViewModel
             var markReceived = new Button
             {
                 Content = "Marcar recebido",
-                MinHeight = 38,
+                MinHeight = 44,
                 Padding = new Thickness(11, 6),
                 IsEnabled = salary.IncomeId is not null && !salary.IsReceived && salary.MonthAmount is not null,
             };
@@ -427,19 +427,19 @@ internal sealed class MonthViewModel
             var updatePattern = new Button
             {
                 Content = "Atualizar padrão",
-                MinHeight = 38,
+                MinHeight = 44,
                 Padding = new Thickness(11, 6),
             };
             updatePattern.Click += async (_, _) => await UpdateFamilySalaryDefaultAsync(salary);
 
             var actions = new WrapPanel
             {
-                HorizontalAlignment = HorizontalAlignment.Right,
-                ItemWidth = 145,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 8, 0, 0),
             };
-            editMonth.Margin = new Thickness(0, 7, 8, 0);
-            markReceived.Margin = new Thickness(0, 7, 8, 0);
-            updatePattern.Margin = new Thickness(0, 7, 0, 0);
+            editMonth.Margin = new Thickness(0, 0, 8, 8);
+            markReceived.Margin = new Thickness(0, 0, 8, 8);
+            updatePattern.Margin = new Thickness(0, 0, 0, 8);
             actions.Children.Add(editMonth);
             actions.Children.Add(markReceived);
             actions.Children.Add(updatePattern);
@@ -447,24 +447,21 @@ internal sealed class MonthViewModel
             var details = new StackPanel { Spacing = 4, VerticalAlignment = VerticalAlignment.Center };
             details.Children.Add(person);
             details.Children.Add(pattern);
-            var left = new StackPanel { Spacing = 2 };
-            left.Children.Add(details);
 
-            var right = new StackPanel { Spacing = 2, HorizontalAlignment = HorizontalAlignment.Right };
-            right.Children.Add(summary);
-            right.Children.Add(actions);
-
-            var body = new Grid
+            var summaryRow = new Grid
             {
-                ColumnDefinitions = ColumnDefinitions.Parse("*,Auto"),
+                ColumnDefinitions = ColumnDefinitions.Parse("*,*"),
                 ColumnSpacing = 18,
-                VerticalAlignment = VerticalAlignment.Center,
             };
-            body.Children.Add(left);
-            Grid.SetColumn(right, 1);
-            body.Children.Add(right);
+            summaryRow.Children.Add(details);
+            Grid.SetColumn(summary, 1);
+            summaryRow.Children.Add(summary);
 
-            host.Children.Add(new Border { Classes = { "card" }, Child = body });
+            var body = new StackPanel { Spacing = 8 };
+            body.Children.Add(summaryRow);
+            body.Children.Add(actions);
+
+            host.Children.Add(new Border { Classes = { "card" }, Child = body, HorizontalAlignment = HorizontalAlignment.Stretch });
         }
     }
 
@@ -768,6 +765,13 @@ internal sealed class MonthViewModel
         if (_selectedEntry is not { } row)
         {
             MessageBoxScreen.ShowInfo(_owner, "Selecione um lançamento para excluir.", "Finance");
+            return;
+        }
+        if (row.RecurrenceId is not null)
+        {
+            MessageBoxScreen.ShowInfo(_owner,
+                "Este lançamento pertence a uma recorrência e pode ser gerado novamente. Edite o valor neste mês ou encerre a recorrência para os próximos meses.",
+                "Lançamento recorrente");
             return;
         }
         var confirm = await MessageBoxScreen.ShowAsync(_owner,

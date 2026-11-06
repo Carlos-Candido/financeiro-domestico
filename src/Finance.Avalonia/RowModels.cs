@@ -4,7 +4,7 @@ namespace Finance.Avalonia;
 
 /// <summary>Linha exibível de um lançamento (receita ou despesa) do mês.</summary>
 internal sealed record EntryRow(int Id, bool IsIncome, int PersonId, DateOnly Date, string Description,
-    string DisplayDescription, string Category, string Person, decimal? Amount, string Status)
+    string DisplayDescription, string Category, string Person, decimal? Amount, string Status, int? RecurrenceId)
 {
     private static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
 

@@ -1,10 +1,13 @@
 using Finance.Core;
 using Finance.Infrastructure;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
-
+using System.Windows.Threading;
 namespace Finance.Desktop;
 
 internal sealed class EntryDialog : Window
@@ -51,7 +54,7 @@ internal sealed class EntryDialog : Window
         _person.ItemsSource = people;
         body.Children.Add(_pending);
         AddButtons(body);
-        Content = body;
+        DialogUi.SetContent(this, body);
         SizeToContent = SizeToContent.Height;
         Width = 460;
         MinHeight = 470;
@@ -155,7 +158,7 @@ internal sealed class RecurrenceDialog : Window
             }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning); }
         }));
-        Content = body;
+        DialogUi.SetContent(this, body);
         Width = 500;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -195,7 +198,7 @@ internal sealed class RecurrenceEndDialog : Window
             }
             DialogResult = true;
         }));
-        Content = body;
+        DialogUi.SetContent(this, body);
         Width = 460;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -250,7 +253,7 @@ internal sealed class FamilySalaryDefaultDialog : Window
             }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning); }
         }));
-        Content = body;
+        DialogUi.SetContent(this, body);
         Width = 480;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -296,7 +299,7 @@ internal sealed class FamilySalaryMonthDialog : Window
             }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning); }
         }));
-        Content = body;
+        DialogUi.SetContent(this, body);
         Width = 480;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -331,25 +334,129 @@ internal sealed class InstallmentDialog : Window
             }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning); }
         }));
-        Content = body; Width = 480; SizeToContent = SizeToContent.Height; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.SetContent(this, body); Width = 480; SizeToContent = SizeToContent.Height; WindowStartupLocation = WindowStartupLocation.CenterOwner;
     }
 }
 
 internal static class DialogUi
 {
-    public static StackPanel FormRoot(string heading) => new() { Margin = new Thickness(28), Width = 400, Children = { new TextBlock { Text = heading, FontSize = 24, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) } } };
+    private const uint MonitorDefaultToNearest = 2;
+    private const uint SetWindowPosNoSize = 0x0001;
+    private const uint SetWindowPosNoZOrder = 0x0004;
+    private const uint SetWindowPosNoActivate = 0x0010;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeRect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MonitorInfo
+    {
+        public uint Size;
+        public NativeRect Monitor;
+        public NativeRect Work;
+        public uint Flags;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern nint MonitorFromWindow(nint hwnd, uint flags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(nint hwnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowRect(nint hwnd, out NativeRect rect);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetWindowPos(nint hwnd, nint insertAfter, int x, int y, int width, int height, uint flags);
+
+    public static StackPanel FormRoot(string heading) => new()
+    {
+        Margin = new Thickness(28),
+        Children = { new TextBlock { Text = heading, FontSize = 24, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16) } }
+    };
+
+    public static void SetContent(Window window, StackPanel body)
+    {
+        window.Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Content = body };
+        window.Loaded += (_, _) =>
+        {
+            var ownHandle = new WindowInteropHelper(window).Handle;
+            var ownerHandle = window.Owner is null ? 0 : new WindowInteropHelper(window.Owner).Handle;
+            if (ownHandle != 0)
+            {
+                var monitorHandle = ownerHandle != 0 ? MonitorFromWindow(ownerHandle, MonitorDefaultToNearest) : 0;
+                if (monitorHandle == 0) monitorHandle = MonitorFromWindow(ownHandle, MonitorDefaultToNearest);
+                var info = new MonitorInfo { Size = (uint)Marshal.SizeOf<MonitorInfo>() };
+                var dpi = GetDpiForWindow(ownHandle);
+                if (monitorHandle != 0 && dpi != 0 && GetMonitorInfo(monitorHandle, ref info))
+                {
+                    var scale = dpi / 96d;
+                    var workWidth = (info.Work.Right - info.Work.Left) / scale;
+                    var workHeight = (info.Work.Bottom - info.Work.Top) / scale;
+                    var maxWidth = MaxAvailableSize(workWidth);
+                    var maxHeight = MaxAvailableSize(workHeight);
+                    window.MaxWidth = maxWidth;
+                    window.MaxHeight = maxHeight;
+                    if (window.MinWidth > maxWidth) window.MinWidth = maxWidth;
+                    if (window.MinHeight > maxHeight) window.MinHeight = maxHeight;
+
+                    window.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+                    {
+                        window.UpdateLayout();
+                        if (GetWindowRect(ownHandle, out var rect))
+                        {
+                            var x = ClampPosition(rect.Left, rect.Right, info.Work.Left, info.Work.Right);
+                            var y = ClampPosition(rect.Top, rect.Bottom, info.Work.Top, info.Work.Bottom);
+                            SetWindowPos(ownHandle, 0, x, y, 0, 0,
+                                SetWindowPosNoSize | SetWindowPosNoZOrder | SetWindowPosNoActivate);
+                        }
+                    }));
+                }
+            }
+
+            var field = body.Children.OfType<Control>().FirstOrDefault(control => control is TextBox or ComboBox or DatePicker && control.IsVisible && control.IsEnabled);
+            field?.Focus();
+        };
+    }
+
+    private static double MaxAvailableSize(double workAreaDip) => Math.Max(1, workAreaDip - 32);
+
+    private static int ClampPosition(int start, int end, int workStart, int workEnd)
+    {
+        var size = end - start;
+        var workSize = workEnd - workStart;
+        return size >= workSize ? workStart : Math.Clamp(start, workStart, workEnd - size);
+    }
+
     public static void AddField(Panel panel, string label, Control control)
     {
-        panel.Children.Add(new TextBlock { Text = label, FontSize = 15, Foreground = Brushes.DimGray }); panel.Children.Add(control);
+        panel.Children.Add(new TextBlock { Text = label, FontSize = 15, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.FindResource("Muted") });
+        AutomationProperties.SetName(control, label);
+        panel.Children.Add(control);
     }
+
     public static StackPanel Buttons(Action save)
     {
         var bar = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 14, 0, 0) };
-        var saveButton = new Button { Content = "Salvar", MinWidth = 110, Background = new SolidColorBrush(Color.FromRgb(40, 107, 98)), Foreground = Brushes.White, BorderBrush = new SolidColorBrush(Color.FromRgb(40, 107, 98)) };
+        var saveButton = new Button { Content = "Salvar", MinWidth = 110, Style = (Style)Application.Current.FindResource("PrimaryButton") };
         saveButton.Click += (_, _) => save(); bar.Children.Add(saveButton);
-        var cancel = new Button { Content = "Cancelar", MinWidth = 110, Margin = new Thickness(0) }; cancel.Click += (s, _) => Window.GetWindow((DependencyObject)s!).DialogResult = false; bar.Children.Add(cancel);
+        var cancel = new Button { Content = "Cancelar", MinWidth = 110, Margin = new Thickness(10, 0, 0, 0), IsCancel = true };
+        cancel.Click += (s, _) => Window.GetWindow((DependencyObject)s!).DialogResult = false; bar.Children.Add(cancel);
         return bar;
     }
+
     public static decimal ParseAmount(string value) => decimal.Parse(value, NumberStyles.Number, CultureInfo.GetCultureInfo("pt-BR"));
 }
 
@@ -359,8 +466,10 @@ internal static class SimplePrompt
     {
         var window = new Window { Title = title, Owner = owner, Width = 420, SizeToContent = SizeToContent.Height, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var body = DialogUi.FormRoot(title); body.Children.Add(new TextBlock { Text = prompt, TextWrapping = TextWrapping.Wrap });
-        var input = new TextBox(); DialogUi.AddField(body, "Nome", input);
-        body.Children.Add(DialogUi.Buttons(() => window.DialogResult = true)); window.Content = body;
+        var input = new TextBox();
+        DialogUi.AddField(body, "Nome", input);
+        body.Children.Add(DialogUi.Buttons(() => window.DialogResult = true));
+        DialogUi.SetContent(window, body);
         return window.ShowDialog() == true ? input.Text.Trim() : null;
     }
 }

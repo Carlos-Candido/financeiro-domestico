@@ -114,6 +114,13 @@
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Foreground" Value="#8E2F2C" />
+      <Setter Property="BorderBrush" Value="#DDB9B6" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
 
     <Style TargetType="TextBox">
       <Setter Property="FontSize" Value="16" />

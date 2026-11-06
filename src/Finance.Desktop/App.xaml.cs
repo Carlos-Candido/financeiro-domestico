@@ -1,4 +1,5 @@
 using Finance.Infrastructure;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Windows;
@@ -23,7 +24,7 @@ public partial class App : Application
             SqliteProviderConfiguration.Initialize();
             var databasePath = FinanceDataPath.GetDatabasePath();
             var options = new DbContextOptionsBuilder<FinanceDbContext>()
-                .UseSqlite($"Data Source={databasePath};")
+                .UseSqlite(new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString())
                 .Options;
             Database = new FinanceDbContext(options);
             Database.Database.EnsureCreated();

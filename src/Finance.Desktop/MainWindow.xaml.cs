@@ -537,7 +537,7 @@ public partial class MainWindow : Window
             MessageBox.Show(this, "Este lançamento pertence a uma recorrência e pode ser gerado novamente. Edite o valor deste mês ou encerre a recorrência para os próximos meses.", "Lançamento recorrente", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
-        if (MessageBox.Show(this, $"Excluir ‘{row.Description}’? Esta ação não pode ser desfeita.", "Confirmar exclusão", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        if (MessageBox.Show(this, $"Excluir ‘{row.Description}’? Esta ação não pode ser desfeita.", "Confirmar exclusão", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         try
         {
             await ExecuteDatabaseAsync(async () =>

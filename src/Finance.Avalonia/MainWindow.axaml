@@ -8,17 +8,17 @@
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="78" />
+            <RowDefinition Height="68" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="224" />
+            <ColumnDefinition Width="216" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Row="0" Grid.ColumnSpan="2" Background="White" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Margin="24,0" Spacing="12" VerticalAlignment="Center">
-                <Border Width="38" Height="38" CornerRadius="11" Background="{DynamicResource AccentBrush}">
+            <StackPanel Orientation="Horizontal" Margin="20,0" Spacing="12" VerticalAlignment="Center">
+                <Border Width="36" Height="36" CornerRadius="11" Background="{DynamicResource AccentBrush}">
                     <TextBlock Text="F" FontSize="23" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <StackPanel Spacing="1" VerticalAlignment="Center">
@@ -29,25 +29,30 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="0" Background="White" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
-            <DockPanel Margin="14,24">
-                <StackPanel DockPanel.Dock="Top" Spacing="5">
+            <Grid Margin="14,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Spacing="5">
                     <TextBlock Text="MENU" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" Margin="12,0,0,9" />
-                    <Button Classes="nav" Content="⌂   Visão geral" Click="OnShowDashboard" />
-                    <Button Classes="nav" Content="▤   Histórico" Click="OnShowHistory" />
-                    <Button Classes="nav" Content="＄   Salários da família" Click="OnShowFamilySalaries" />
-                    <Button Classes="nav" Content="↻   Recorrências" Click="OnShowRecurrences" />
-                    <Button Classes="nav" Content="⚙   Configurações" Click="OnShowSettings" />
+                    <Button Classes="nav" Classes.active="{Binding #DashboardPanel.IsVisible}" Content="⌂   Visão geral" Click="OnShowDashboard" />
+                    <Button Classes="nav" Classes.active="{Binding #HistoryPanel.IsVisible}" Content="▤   Histórico" Click="OnShowHistory" />
+                    <Button Classes="nav" Classes.active="{Binding #FamilySalariesPanel.IsVisible}" Content="＄   Salários da família" Click="OnShowFamilySalaries" />
+                    <Button Classes="nav" Classes.active="{Binding #RecurrencesPanel.IsVisible}" Content="↻   Recorrências" Click="OnShowRecurrences" />
+                    <Button Classes="nav" Classes.active="{Binding #SettingsPanel.IsVisible}" Content="⚙   Configurações" Click="OnShowSettings" />
                 </StackPanel>
-                <Border DockPanel.Dock="Bottom" Background="{DynamicResource CanvasBrush}" CornerRadius="10" Padding="13" Margin="0,24,0,0">
+                <Border Grid.Row="2" Background="{DynamicResource CanvasBrush}" CornerRadius="10" Padding="13" Margin="0,24,0,0">
                     <StackPanel Spacing="3">
                         <TextBlock Text="Seus dados ficam" FontSize="13" FontWeight="SemiBold" />
                         <TextBlock Text="salvos neste dispositivo." FontSize="13" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
-            </DockPanel>
+            </Grid>
         </Border>
 
-        <Grid Grid.Row="1" Grid.Column="1" Margin="30,24,30,30">
+        <Grid Grid.Row="1" Grid.Column="1" Margin="24,20,24,24">
             <views:MonthView x:Name="DashboardPanel" IsVisible="True" />
             <views:HistoryView x:Name="HistoryPanel" IsVisible="False" />
             <views:RecurrencesView x:Name="RecurrencesPanel" IsVisible="False" />

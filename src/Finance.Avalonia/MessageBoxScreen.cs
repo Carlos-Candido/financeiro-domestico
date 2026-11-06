@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -8,8 +9,9 @@ using Avalonia.Threading;
 namespace Finance.Avalonia;
 
 /// <summary>
-/// Caixas de mensagem modais simples, com textos grandes e foco no botão principal.
-/// Avalonia não possui MessageBox embutido, portanto o app mantém o seu próprio.
+/// Caixas de mensagem modais simples, com textos grandes e foco no botão seguro
+/// (Não/Cancelar em confirmações destrutivas). Avalonia não possui MessageBox
+/// embutido, portanto o app mantém o seu próprio.
 /// </summary>
 internal static class MessageBoxScreen
 {
@@ -59,10 +61,11 @@ internal static class MessageBoxScreen
         public MessageBoxWindow(string message, string title, MessageBoxButtons buttons, MessageBoxType type)
         {
             Title = title;
-            SizeToContent = SizeToContent.WidthAndHeight;
+            SizeToContent = SizeToContent.Height;
             CanResize = false;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             MinWidth = 380;
+            Width = 520;
             MaxWidth = 560;
             Topmost = true;
 
@@ -93,12 +96,14 @@ internal static class MessageBoxScreen
                 Text = message,
                 FontSize = 17,
                 TextWrapping = TextWrapping.Wrap,
-                MaxWidth = 470,
             };
 
-            var messageRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(26, 24, 26, 6) };
+            var messageRow = new Grid { Margin = new Thickness(26, 24, 26, 6) };
+            messageRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0, GridUnitType.Auto) });
+            messageRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             messageRow.Children.Add(icon);
             messageRow.Children.Add(text);
+            Grid.SetColumn(text, 1);
 
             var buttonBar = new StackPanel
             {
@@ -108,7 +113,8 @@ internal static class MessageBoxScreen
                 Margin = new Thickness(26, 10, 26, 22),
             };
 
-            void AddButton(string label, MessageBoxResult result, bool isPrimary)
+            Button? focused = null;
+            void AddButton(string label, MessageBoxResult result, bool isPrimary, bool focusOnOpen, bool isCancel)
             {
                 var button = new Button
                 {
@@ -117,6 +123,7 @@ internal static class MessageBoxScreen
                     MinHeight = 40,
                     HorizontalContentAlignment = HorizontalAlignment.Center,
                     Padding = new Thickness(14, 6, 14, 6),
+                    IsCancel = isCancel,
                 };
                 if (isPrimary) button.Classes.Add("primary");
                 button.Click += (_, _) =>
@@ -125,28 +132,57 @@ internal static class MessageBoxScreen
                     Close(result);
                 };
                 buttonBar.Children.Add(button);
-                if (isPrimary) button.AttachedToVisualTree += (_, _) => button.Focus();
+                if (focusOnOpen)
+                    focused = button;
             }
 
             switch (buttons)
             {
                 case MessageBoxButtons.Ok:
-                    AddButton("OK", MessageBoxResult.Ok, isPrimary: true);
+                    AddButton("OK", MessageBoxResult.Ok, isPrimary: true, focusOnOpen: true, isCancel: false);
                     break;
                 case MessageBoxButtons.OkCancel:
-                    AddButton("OK", MessageBoxResult.Ok, isPrimary: true);
-                    AddButton("Cancelar", MessageBoxResult.Cancel, isPrimary: false);
+                    AddButton("OK", MessageBoxResult.Ok, isPrimary: true, focusOnOpen: false, isCancel: false);
+                    AddButton("Cancelar", MessageBoxResult.Cancel, isPrimary: false, focusOnOpen: true, isCancel: true);
                     break;
                 case MessageBoxButtons.YesNo:
-                    AddButton("Sim", MessageBoxResult.Yes, isPrimary: true);
-                    AddButton("Não", MessageBoxResult.No, isPrimary: false);
+                    AddButton("Sim", MessageBoxResult.Yes, isPrimary: true, focusOnOpen: false, isCancel: false);
+                    AddButton("Não", MessageBoxResult.No, isPrimary: false, focusOnOpen: true, isCancel: true);
                     break;
             }
 
-            var root = new StackPanel();
-            root.Children.Add(messageRow);
+            var scroll = new ScrollViewer
+            {
+                Content = messageRow,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            };
+            var root = new DockPanel();
+            DockPanel.SetDock(buttonBar, Dock.Bottom);
             root.Children.Add(buttonBar);
+            root.Children.Add(scroll);
             Content = root;
+
+            Opened += (_, _) =>
+            {
+                LimitToWorkingArea();
+                focused?.Focus();
+            };
+        }
+
+        private void LimitToWorkingArea()
+        {
+            var screen = Screens.ScreenFromWindow(this);
+            MaxHeight = screen is not null
+                ? Math.Max(1, screen.WorkingArea.Height / screen.Scaling - 32)
+                : Owner is Window { IsVisible: true } owner
+                    ? Math.Max(1, owner.Bounds.Height - 32)
+                    : 640;
+            MaxWidth = screen is not null
+                ? Math.Min(560, Math.Max(1, screen.WorkingArea.Width / screen.Scaling - 32))
+                : 520;
+            if (screen is not null)
+                DialogUi.KeepWithinWorkingArea(this, screen.WorkingArea, screen.Scaling);
         }
     }
 }

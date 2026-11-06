@@ -46,7 +46,7 @@ internal sealed class FamilySalaryDefaultDialog : Window
         {
             Text = "Este padrão vale para os próximos salários gerados. Meses já gerados não serão alterados.",
             TextWrapping = TextWrapping.Wrap,
-            Foreground = new SolidColorBrush(Color.Parse("#647176")),
+            Foreground = DialogUi.MutedText(),
             FontSize = 14,
             Margin = new Thickness(0, 6, 0, 0),
         });
@@ -62,6 +62,7 @@ internal sealed class FamilySalaryDefaultDialog : Window
         Width = 500;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.ConfigureWindow(this, body);
     }
 }
 
@@ -83,7 +84,8 @@ internal sealed class FamilySalaryMonthDialog : Window
         {
             Text = $"{salary.PersonName} · {char.ToUpper(monthName[0]) + monthName[1..]}",
             FontSize = 15,
-            Foreground = new SolidColorBrush(Color.Parse("#647176")),
+            Foreground = DialogUi.MutedText(),
+            TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 0, 0, 6),
         });
         _amount.Text = (salary.MonthAmount ?? salary.StandardAmount).ToString("0.00", DialogUi.PtBr);
@@ -95,7 +97,7 @@ internal sealed class FamilySalaryMonthDialog : Window
         {
             Text = "A alteração vale somente para este mês. O padrão dos próximos meses não muda.",
             TextWrapping = TextWrapping.Wrap,
-            Foreground = new SolidColorBrush(Color.Parse("#647176")),
+            Foreground = DialogUi.MutedText(),
             FontSize = 14,
             Margin = new Thickness(0, 8, 0, 0),
         });
@@ -105,5 +107,6 @@ internal sealed class FamilySalaryMonthDialog : Window
         Width = 500;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.ConfigureWindow(this, body);
     }
 }

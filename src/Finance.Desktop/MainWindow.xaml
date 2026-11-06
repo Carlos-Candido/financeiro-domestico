@@ -76,12 +76,11 @@
             <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="16,12" Margin="0,0,0,20">
               <StackPanel><TextBlock x:Name="PendingText" FontSize="14" FontWeight="Medium" /><TextBlock x:Name="ForecastText" Margin="0,5,0,0" Foreground="{StaticResource Muted}" FontSize="14" TextWrapping="Wrap" /></StackPanel>
             </Border>
-            <Grid Margin="0,0,0,22">
-              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-              <Button Style="{StaticResource PrimaryButton}" Content="＋   Adicionar receita" Click="AddIncome_Click" Margin="0,0,8,0" />
-              <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Content="−   Registrar despesa" Click="AddExpense_Click" Margin="4,0" />
-              <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="▦   Compra parcelada" Click="AddInstallment_Click" Margin="8,0,0,0" />
-            </Grid>
+            <WrapPanel Margin="0,0,0,22">
+              <Button Style="{StaticResource PrimaryButton}" Content="＋   Adicionar receita" Click="AddIncome_Click" Margin="0,0,8,8" />
+              <Button Style="{StaticResource SecondaryButton}" Content="−   Registrar despesa" Click="AddExpense_Click" Margin="0,0,8,8" />
+              <Button Style="{StaticResource SecondaryButton}" Content="▦   Compra parcelada" Click="AddInstallment_Click" Margin="0,0,8,8" />
+            </WrapPanel>
             <Grid Margin="0,0,0,10">
               <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
               <StackPanel><TextBlock Text="Lançamentos recentes" FontSize="21" FontWeight="SemiBold" /><TextBlock Text="Movimentações do mês" FontSize="14" Foreground="{StaticResource Muted}" Margin="0,3,0,0" /></StackPanel>
@@ -118,15 +117,15 @@
 
         <Grid x:Name="HistoryView" Visibility="Collapsed">
           <StackPanel>
-            <Grid Margin="0,0,0,16">
-              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-              <StackPanel><TextBlock Text="Lançamentos" FontSize="27" FontWeight="SemiBold" /><TextBlock x:Name="HistoryMonthHeading" FontSize="15" Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel>
-              <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button x:Name="ConfirmSelectedButton" Style="{StaticResource SecondaryButton}" Content="Confirmar previsto" Click="ConfirmSelected_Click" IsEnabled="False" Margin="0,0,8,0" />
-                <Button x:Name="EditSelectedButton" Style="{StaticResource SecondaryButton}" Content="Editar" Click="EditSelected_Click" IsEnabled="False" Margin="0,0,8,0" />
-                <Button x:Name="DeleteSelectedButton" Style="{StaticResource QuietButton}" Content="Excluir" Click="DeleteSelected_Click" IsEnabled="False" Margin="0" />
-              </StackPanel>
-            </Grid>
+            <StackPanel Margin="0,0,0,4">
+              <TextBlock Text="Lançamentos" FontSize="27" FontWeight="SemiBold" />
+              <TextBlock x:Name="HistoryMonthHeading" FontSize="15" Foreground="{StaticResource Muted}" Margin="0,4,0,0" />
+            </StackPanel>
+            <WrapPanel Margin="0,12,0,16">
+              <Button x:Name="ConfirmSelectedButton" Style="{StaticResource SecondaryButton}" Content="Confirmar previsto" Click="ConfirmSelected_Click" IsEnabled="False" Margin="0,0,8,8" />
+              <Button x:Name="EditSelectedButton" Style="{StaticResource SecondaryButton}" Content="Editar" Click="EditSelected_Click" IsEnabled="False" Margin="0,0,8,8" />
+              <Button x:Name="DeleteSelectedButton" Style="{StaticResource DangerButton}" Content="Excluir" Click="DeleteSelected_Click" IsEnabled="False" Margin="0,0,0,8" />
+            </WrapPanel>
             <Grid Margin="0,0,0,10">
               <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
               <TextBlock x:Name="HistoryFilterText" Text="Todos os lançamentos do mês" Foreground="{StaticResource Muted}" VerticalAlignment="Center" />

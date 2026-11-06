@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Finance.Infrastructure;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Finance.Avalonia;
@@ -27,7 +28,7 @@ public partial class App : Application
                 SqliteProviderConfiguration.Initialize();
                 var databasePath = FinanceDataPath.GetDatabasePath();
                 var options = new DbContextOptionsBuilder<FinanceDbContext>()
-                    .UseSqlite($"Data Source={databasePath};")
+                    .UseSqlite(new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString())
                     .Options;
                 Database = new FinanceDbContext(options);
                 Database.Database.EnsureCreated();

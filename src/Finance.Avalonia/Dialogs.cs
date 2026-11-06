@@ -1,9 +1,11 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Finance.Core;
 using System.Globalization;
 
@@ -19,17 +21,83 @@ internal static class DialogUi
 
     public static ScrollViewer FormRoot(string heading, out StackPanel body)
     {
-        body = new StackPanel { Margin = new Thickness(26), MinWidth = 380, MaxWidth = 520, Spacing = 4 };
-        body.Children.Add(new TextBlock { Text = heading, FontSize = 23, FontWeight = FontWeight.SemiBold, Margin = new Thickness(0, 0, 0, 14) });
+        body = new StackPanel { Margin = new Thickness(26), MaxWidth = 520, Spacing = 4 };
+        body.Children.Add(new TextBlock
+        {
+            Text = heading,
+            FontSize = 23,
+            FontWeight = FontWeight.SemiBold,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 0, 0, 14),
+        });
         return new ScrollViewer { Content = body, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
     }
 
     public static void AddField(StackPanel panel, string label, Control control)
     {
-        panel.Children.Add(new TextBlock { Text = label, FontSize = 15, Foreground = Brushes.Gray, Margin = new Thickness(0, 8, 0, 3) });
+        panel.Children.Add(new TextBlock
+        {
+            Text = label,
+            FontSize = 15,
+            Foreground = MutedText(),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 8, 0, 3),
+        });
+        AutomationProperties.SetName(control, label);
         control.MinHeight = 40;
         control.Margin = new Thickness(0, 0, 0, 6);
         panel.Children.Add(control);
+    }
+
+    /// <summary>
+    /// Limita a altura da janela do diálogo à área útil da tela e foca o primeiro campo
+    /// habilitado quando a janela abre. O ScrollViewer do corpo mantém todos os campos
+    /// e botões alcançáveis quando o conteúdo excede o limite.
+    /// </summary>
+    public static void ConfigureWindow(Window window, StackPanel body)
+    {
+        window.Opened += (_, _) =>
+        {
+            var screen = window.Screens.ScreenFromWindow(window.Owner as Window ?? window);
+            window.MaxHeight = screen is not null
+                ? Math.Max(1, screen.WorkingArea.Height / screen.Scaling - 32)
+                : window.Owner is Window { IsVisible: true } owner
+                    ? Math.Max(1, owner.Bounds.Height - 32)
+                    : 640;
+            if (screen is not null)
+                KeepWithinWorkingArea(window, screen.WorkingArea, screen.Scaling);
+            FocusFirstField(body);
+        };
+    }
+
+    public static void KeepWithinWorkingArea(Window window, PixelRect area, double scaling)
+    {
+        // O centramento inicial pode usar a altura anterior ao MaxHeight.
+        Dispatcher.UIThread.Post(() =>
+        {
+            window.UpdateLayout();
+            var size = window.FrameSize ?? window.Bounds.Size;
+            var width = (int)Math.Ceiling(Math.Min(size.Width, window.MaxWidth) * scaling);
+            var height = (int)Math.Ceiling(Math.Min(size.Height, window.MaxHeight) * scaling);
+            var top = area.Y + Math.Min(32, Math.Max(0, area.Height - height));
+            window.Position = new PixelPoint(
+                Math.Clamp(window.Position.X, area.X, Math.Max(area.X, area.Right - width)),
+                Math.Clamp(window.Position.Y, top, Math.Max(top, area.Bottom - height)));
+        }, DispatcherPriority.Loaded);
+    }
+
+    private static void FocusFirstField(StackPanel body)
+    {
+        foreach (var child in body.Children)
+        {
+            if (child is not TextBox && child is not ComboBox && child is not DatePicker)
+                continue;
+            var control = (Control)child;
+            if (!control.IsEnabled || !control.IsVisible)
+                continue;
+            control.Focus();
+            return;
+        }
     }
 
     public static StackPanel Buttons(Window window, Action validateAndAccept)
@@ -57,12 +125,19 @@ internal static class DialogUi
         };
         bar.Children.Add(save);
 
-        var cancel = new Button { Content = "Cancelar", MinWidth = 118, MinHeight = 40 };
+        var cancel = new Button { Content = "Cancelar", MinWidth = 118, MinHeight = 40, IsCancel = true };
         cancel.Click += (_, _) => window.Close(false);
         bar.Children.Add(cancel);
 
-        save.AttachedToVisualTree += (_, _) => save.Focus();
         return bar;
+    }
+
+    /// <summary>Obtém o recurso MutedBrush sem editar App.axaml.</summary>
+    public static IBrush MutedText()
+    {
+        if (Application.Current?.TryFindResource("MutedBrush", out var value) == true && value is IBrush brush)
+            return brush;
+        return new SolidColorBrush(Color.Parse("#647176"));
     }
 
     public static TextBox TextField(string? text = null, string? placeholder = null)
@@ -158,6 +233,7 @@ internal sealed class EntryDialog : Window
         Width = 480;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.ConfigureWindow(this, body);
     }
 }
 
@@ -209,8 +285,7 @@ internal sealed class RecurrenceDialog : Window
         {
             Text = "Recorrências fixas geram lançamentos previstos; variáveis ficam pendentes até alguém informar o valor.",
             TextWrapping = TextWrapping.Wrap,
-            Foreground = Brushes.Gray,
-            FontSize = 14,
+            Foreground = DialogUi.MutedText(),
             Margin = new Thickness(0, 4, 0, 0),
         });
 
@@ -235,6 +310,7 @@ internal sealed class RecurrenceDialog : Window
         Width = 500;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.ConfigureWindow(this, body);
     }
 }
 
@@ -276,7 +352,7 @@ internal sealed class InstallmentDialog : Window
         {
             Text = "O sistema distribui os centavos entre as parcelas para preservar o total informado.",
             TextWrapping = TextWrapping.Wrap,
-            Foreground = Brushes.Gray,
+            Foreground = DialogUi.MutedText(),
             FontSize = 14,
             Margin = new Thickness(0, 4, 0, 0),
         });
@@ -300,6 +376,7 @@ internal sealed class InstallmentDialog : Window
         Width = 500;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        DialogUi.ConfigureWindow(this, body);
     }
 }
 
@@ -328,6 +405,7 @@ internal static class SimplePrompt
             result = input.Text.Trim();
         }));
         window.Content = root;
+        DialogUi.ConfigureWindow(window, body);
         await window.ShowDialog<bool>(owner);
         return result;
     }
